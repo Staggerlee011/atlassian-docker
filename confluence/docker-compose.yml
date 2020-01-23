@@ -1,0 +1,51 @@
+version: '3' 
+services: 
+
+  nginx: 
+    container_name: nginx 
+    image: nginx:latest 
+    volumes:
+     - ./nginx.conf:/etc/nginx/nginx.conf 
+    depends_on: 
+     - confluence 
+    ports: 
+     - "80:80" 
+    networks: 
+      default: 
+        aliases:
+         - confluence.internal
+
+  confluence: 
+    container_name: confluence
+    image: atlassian/confluence-server:latest
+    environment: 
+     - ATL_PROXY_NAME=confluence.internal
+     - ATL_PROXY_PORT=80
+     - ATL_TOMCAT_SCHEME=http
+     - ATL_JDBC_URL=jdbc:postgresql://postgres-confluence:5432/confluence
+     - ATL_JDBC_USER=postgres
+     - ATL_JDBC_PASSWORD=mysecretpassword
+     - ATL_DB_TYPE=postgresql
+    depends_on:
+      - postgres-confluence
+
+  # docker volume create --name postgres-confluence-data -d local
+  postgres-confluence:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_DB=confluence
+    volumes:
+       - postgres-confluence-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-U", "postgres"]
+      interval: 5s
+      timeout: 1s
+      retries: 2
+    
+volumes:
+  postgres-confluence-data:
+    external: true
