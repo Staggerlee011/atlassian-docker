@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: confluence
+  namespace: confluence
+spec:
+  selector:
+    matchLabels:
+      app: confluence
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: confluence
+    spec:
+      containers:
+      - name: confluence
+        image: atlassian/confluence-server
+        imagePullPolicy: Always
+
+        ## storage
+        volumeMounts:
+        - name: persistent-storage
+          mountPath: /mnt/confluence
+
+        env:
+        ## storage mount
+        - name: CONFLUENCE_HOME
+          value: /mnt/confluence
+        ## database settings
+        - name: ATL_JDBC_URL
+          value: "jdbc:postgresql://DATABASESERVER:DATABASEPORT/DATABASENAME"
+        - name: ATL_JDBC_USER
+          value: "DATABASE_USER"
+        - name: ATL_JDBC_PASSWORD
+          value: "DATABASE_USER_PASSWORD"
+        - name: ATL_DB_TYPE
+          value: "postgresql"
+        ## load balancer settings
+        - name: ATL_PROXY_NAME    
+          value: URL_FOR HTTPS
+        - name: ATL_PROXY_PORT
+          value: "443"
+        - name: ATL_TOMCAT_SECURE
+          value: "true"
+        - name: ATL_TOMCAT_SCHEME
+          value: "https"
+
+        ports:
+        - name: http
+          containerPort: 8090
+      volumes:
+        - name: persistent-storage
+          persistentVolumeClaim:
+            claimName: confluence-efs-claim

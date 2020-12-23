@@ -1,0 +1,37 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: confluence-efs-sc
+  namespace: confluence
+provisioner: efs.csi.aws.com
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: confluence-efs-pv
+  namespace: confluence
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: confluence-efs-sc
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: ## needs to be updated with efs value from environment!!!
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: confluence-efs-claim
+  namespace: confluence
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: confluence-efs-sc
+  resources:
+    requests:
+      storage: 5Gi
+
