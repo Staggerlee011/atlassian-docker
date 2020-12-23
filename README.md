@@ -1,2 +1,12 @@
 # atlassian-docker
-collection of docker-compose files to bring up atlassian environments
+
+collection of deployments for `docker-compose` and `kubenetes` to bring up atlassian environments
+
+## docker-compose
+
+- confluence
+- confluence and jira
+
+## kubernetes
+
+- confluence
